@@ -10,5 +10,5 @@
  * - WindowedApp: 52
  * - ConsoleApp: 65
  *
- * @subsection total Total : 237 projets
+ * @subsection total Total : 237 projets.
  */
