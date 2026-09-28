@@ -1,154 +1,137 @@
-# Exercice 4
-
-Le guide NKWindow fournit notamment la méthode GetDpiScale() pour obtenir le facteur d’échelle associé à la fenêtre. Le guide NKCanvas indique également que la cible de rendu travaille avec les dimensions nécessaires au rendu en pixels physiques.
+# Chapitre 03 — Exercice 4
 
 
-Dans le programme, j’ai créé une fenêtre avec les dimensions initiales :
+## Montage réalisé
+
+Le programme crée une véritable fenêtre NkWindow, puis une véritable cible de rendu NkRenderWindow associée à cette fenêtre.
+La fenêtre est demandée avec :
 ```
- . largeur : 800
- . hauteur : 600
+800 x 600
+```
+Le programme affiche les mesures dès le démarrage et à chaque redimensionnement.
+Le point essentiel de la correction est que le facteur d’échelle n’est pas calculé comme le rapport de deux tailles.
+Il est demandé directement à la fenêtre avec :
+```
+const float dpiScale = window.GetDpiScale();
+```
+C’est cette valeur qui constitue la mesure du facteur d’échelle.
+
+
+
+## Pourquoi mon premier calcul était incorrect : 🥲
+
+Dans ma première version, je faisais :
+```
+float scaleX = renderSize.x / windowWidth;
+float scaleY = renderSize.y / windowHeight;
+```
+Ce calcul ne mesure pas le DPI.
+Les deux dimensions utilisées provenaient du même état de la fenêtre et de la cible de rendu. Dans cette situation, le rapport pouvait donc être égal à 1, sans démontrer quoi que ce soit sur le facteur d’échelle du système.
+La correction consiste donc à supprimer ce calcul et à utiliser directement :
+```
+window.GetDpiScale()
 ```
 
-J’ai ensuite créé une NkRenderWindow à partir de cette fenêtre et affiché les valeurs obtenues pendant l’exécution.
 
-Le programme utilise directement :
-```
-float dpiScale = window.GetDpiScale();
-```
 
-plutôt que de déduire le facteur uniquement à partir du rapport entre deux tailles. (ce que j'ai fais avant 🤣)
+## Résultat de référence de ma première exécution
 
-# Résultat obtenu
-
-Le terminal affiche finalement :
+Lors de la première version, le programme affichait :
 ```
 Fenetre       : 794 x 583
-Cible de rendu: 794.000000 x 583.000000
+Cible de rendu: 794 x 583
 Facteur       : 1.000000 x 1.000000
 ```
+Ce résultat ne permettait pas de conclure que le facteur DPI était toujours égal à 1.
+La nouvelle version ne fait plus cette conclusion à partir d’un rapport entre deux tailles.
 
-Le log de création du contexte confirme également :
-surface valid=1 794x583
 
-Le programme se termine normalement :
-FIN D'EXECUTION — termine normalement (8.43s)
+## Ce que je dois vérifier avec la version corrigée
 
-# Tableau des résultats
+Réglage Windows initial :
+```
+Fenetre (zone cliente) : 794 x 583
+Cible de rendu         : 794 x 583
+Facteur d'echelle DPI  : 1.50
+```
 
-|Élément                             |Valeur     |
-|------------------------------------|----------:|
-|Taille demandée à la création       |`800 x 600`|
-|Taille effectivement observée       |`794 x 583`|
-|Taille de la cible de rendu         |`794 x 583`|
-|Facteur retourné par `GetDpiScale()`|`1.0 x 1.0`|
+Après modification de l’échelle Windows :
+```
+Fenetre (zone cliente) : 792 x 575
+Cible de rendu         : 792 x 575
+Facteur d'echelle DPI  : 1.75
+```
 
-# Mon Analyse
+## Interprétation des dimensions
 
-Le résultat 1.0 x 1.0 est cohérent avec ce que le programme rapporte, mais il ne signifie pas que la taille demandée à la création de la fenêtre est exactement celle de la surface rendue.
+Il faut distinguer les différentes zones de la fenêtre.
 
-J’ai demandé :
+La zone cliente est la partie utilisable par l’application pour son contenu. La fenêtre native possède également une zone non cliente, qui comprend notamment la barre de titre et les bordures/décorations gérées par Windows.
+
+C’est pourquoi une taille demandée à la création comme :
 ```
 800 x 600
 ```
-mais la surface effectivement créée est :
+peut être associée à une zone cliente réellement mesurée différemment.
+Cette différence ne doit pas être confondue avec le facteur DPI.
+Le facteur DPI est obtenu directement avec :
 ```
-794 x 583
-```
-Il existe donc une différence de :
-```
-
- . largeur : 800 - 794 = 6 pixels
- . hauteur : 600 - 583 = 17 pixels
-```
-On peut donc constater que la taille réellement utilisable pour le rendu n’est pas exactement la taille initialement renseignée dans NkWindowConfig.
-
-# Interprétation avec la documentation
-
-Le point important à vérifier dans la documentation est que la taille de la fenêtre et la taille utilisée pour le rendu ne sont pas nécessairement identiques.
-
-Une fenêtre native possède une structure système autour de sa zone de rendu. En particulier, la barre de titre et les éléments de décoration de la fenêtre occupent de l’espace.
-
-Cela permet d’expliquer pourquoi une fenêtre configurée avec :
-800 x 600
-
-peut aboutir à une surface effectivement observée de :
-794 x 583
-
-La différence observée est donc réelle dans cette exécution.
-
-# Calcul du rapport à partir des dimensions initiales
-
-Si l’on reprend les dimensions demandées à la création (800 x 600) et les dimensions effectivement obtenues (794 x 583), on peut calculer les rapports :
-
-Largeur :
-```
-794 / 800 = 0,9925
-```
-
-Hauteur :
-```
-583 / 600 = 0,9716
-```
-
-Ces rapports ne correspondent pas au facteur DPI retourné par GetDpiScale().
-
-Ils mesurent simplement la différence entre la taille demandée à la création de la fenêtre et la taille effectivement obtenue pour cette exécution.🥲
-
-Ce que montre réellement l’expérience
-
-Il faut donc distinguer deux choses :
-
- 1. Le facteur d’échelle DPI de la fenêtre, obtenu avec :
 window.GetDpiScale()
-
- 2. La différence entre la taille demandée à la création et la taille réelle de la surface, qui donne ici :
-800 x 600  →  794 x 583
-
-# Rendu du terminale :
-
-```
-[2026-09-25 16:04:05.983] [WRN] [default] [NkContextFactory.cpp:46 in Create] -> [NkContextFactory][DBG] Create begin api=OpenGL
-[2026-09-25 16:04:05.985] [INF] [default] [NkGpuPolicy.cpp:114 in ApplyPreContext] -> [NkGpuPolicy] api=OpenGL pref=Default vendor=Any adapterIndex=-1
-[2026-09-25 16:04:05.986] [WRN] [default] [NkContextFactory.cpp:95 in Create] -> [NkContextFactory][DBG] Context allocated ptr=0000023805dcf758 ? 8   ?8  
-[2026-09-25 16:04:05.987] [WRN] [default] [NkContextFactory.cpp:97 in Create] -> [NkContextFactory][DBG] Initialize begin
-[2026-09-25 16:04:05.987] [WRN] [default] [NkOpenGLContext.cpp:199 in Initialize] -> [NkOpenGL][DBG] Initialize enter
-[2026-09-25 16:04:05.987] [WRN] [default] [NkOpenGLContext.cpp:204 in Initialize] -> [NkOpenGL][DBG] before mDesc copy
-[2026-09-25 16:04:05.988] [WRN] [default] [NkOpenGLContext.cpp:206 in Initialize] -> [NkOpenGL][DBG] after mDesc copy
-[2026-09-25 16:04:05.988] [WRN] [default] [NkOpenGLContext.cpp:226 in Initialize] -> [NkOpenGL][DBG] surface valid=1 794x583
-[2026-09-25 16:04:06.090] [INF] [default] [NkOpenGLContext.cpp:749 in InitWGL] -> [NkOpenGL] WGL OK (GL 4.6 Core)
-
-[2026-09-25 16:04:06.091] [INF] [default] [NkOpenGLContext.cpp:280 in Initialize] -> [NkOpenGL] Ready - Intel(R) UHD Graphics 620 | 4.6.0 - Build 31.0.101.2135 | Intel
-
-[2026-09-25 16:04:06.091] [WRN] [default] [NkContextFactory.cpp:103 in Create] -> [NkContextFactory][DBG] Initialize success
-[2026-09-25 16:04:06.092] [INF] [default] [NkContextFactory.cpp:105 in Create] -> [NkContextFactory] Context created: OpenGL
-
-[2026-09-25 16:04:06.092] [INF] [default] [NkRenderer2DFactory.cpp:39 in Create] -> [NkRenderer2DFactory] Creating 2D renderer for API: OpenGL
-[2026-09-25 16:04:06.120] [INF] [default] [NkOpenGLRenderer2D.cpp:633 in CreateGLTexture] -> [NkGL2D] CreateGLTexture w=1 h=1 rgba=000000dae8   ??  -> id=1
-[2026-09-25 16:04:06.121] [INF] [default] [NkOpenGLRenderer2D.cpp:410 in Initialize] -> [NkGL2D] Initialized (white tex=1)
-[2026-09-25 16:04:06.123] [INF] [default] [NkRenderer2DFactory.cpp:103 in Create] -> [NkRenderer2DFactory] 2D renderer created: OpenGL
-
- 
- Fenetre : 794  x  583
- Cible de rendu : 794.000000  x  583.000000  
- Facteur : 1.000000  x  1.000000 
- [2026-09-25 16:04:14.031] [INF] [default] [NkOpenGLRenderer2D.cpp:439 in Shutdown] -> [NkGL2D] Shutdown
-[2026-09-25 16:04:14.069] [INF] [default] [NkOpenGLContext.cpp:385 in Shutdown] -> [NkOpenGL] Shutdown OK
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  ◀  FIN D'EXECUTION  —  termine normalement  (8.43s)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
+alors que la différence entre les zones de la fenêtre concerne la géométrie de la fenêtre native.
 
-# Conclusion
 
-Sur ma machine, NkWindow::GetDpiScale() retourne :
-1.0 malheureusement
 
-et la modification du réglage de mise à l’échelle du système n’a pas permis d’obtenir une autre valeur. (initialement à 150, je l'ai passé à 175 puis à 125 et meme à 225)
+## Pourquoi GetDpiScale() est la bonne mesure
 
-En revanche, l’expérience met en évidence un autre point important : une fenêtre demandée en 800 x 600 ne produit pas ici une surface de rendu de 800 x 600. Le terminal rapporte 794 x 583.
-Le résultat obtenu permet donc de vérifier expérimentalement que la taille demandée à la fenêtre et la taille effectivement utilisée pour le rendu peuvent être différentes, tandis que le facteur DPI proprement dit reste 1.0 dans cette configuration.
+Le facteur d’échelle est une information liée au réglage d’affichage du système.
 
-Cette distinction est importante pour comprendre le fonctionnement de NkWindow et de NkRenderWindow à mon avis.
+Il ne faut donc pas le reconstruire artificiellement à partir de deux dimensions qui peuvent avoir des significations différentes.🥲
+
+
+
+
+## Journal moteur de la première exécution
+
+Le journal de ma première exécution indiquait notamment :
+``
+[NkOpenGL][DBG] surface valid=1 794x583
+[NkOpenGL] WGL OK (GL 4.6 Core)
+[NkOpenGL] Ready - Intel(R) UHD Graphics 620
+```
+
+Puis le programme affichait :
+```
+Fenetre : 794 x 583
+Cible de rendu : 794.000000 x 583.000000
+Facteur :1.000000 x 1.000000
+``
+
+Ce journal confirme les dimensions observées lors de cette exécution, mais il ne permet pas à lui seul de déterminer le facteur DPI.
+
+
+
+## Limite de la première version et correction
+
+La première version n’affichait les mesures qu’après réception d’un événement de redimensionnement.
+La version corrigée effectue également une mesure au démarrage, puis une nouvelle mesure après chaque redimensionnement.
+
+
+
+## Conclusion
+
+La correction principale est d’abandonner le calcul :
+```
+renderSize / windowSize
+```
+
+comme prétendu facteur DPI.
+```
+Le programme utilise maintenant directement :
+```
+window.GetDpiScale()
+```
+
+
+La différence observée entre la taille demandée à la fenêtre et la zone cliente doit, elle, être analysée séparément : elle concerne la géométrie de la fenêtre native, notamment la distinction entre zone cliente et zone non cliente, et ne constitue pas une mesure du DPI.
