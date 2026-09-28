@@ -1,22 +1,29 @@
-#include "NKWindow\NKWindow.h"
-#include "NKWindow\NKMain.h" /* fournis le point d'entree natif */
+#include "NKWindow/NKWindow.h"
+#include "NKWindow/NKMain.h"
 
-int nkmain(const NkEntryState &state) {
+using namespace nkentseu;
 
-    // configuration de la fenetre : titre, largeur et hauteur.
-    NKWindowconfig cfg;
+int nkmain(const NkEntryState &state)
+{
+    // Configuration de la fenêtre : titre, largeur et hauteur.
+    NkWindowConfig cfg;
     cfg.title = "MA PREMIERE FENETRE";
     cfg.width = 800;
     cfg.height = 800;
 
-    // creation de la fenetre.
-    NKWindow window(cfg);
-    if(!window.IsOpen) { // Dans le guide la forme ici est window.Create(cfg) et non Window.IsOpen()🥲
-        logger.Error(" DE CREATION DE LA FENETRE"); /* en cas d'echec on signale l'erreur dans le log */
+    // Création de la fenêtre.
+    NkWindow window(cfg);
+
+    if (!window.IsOpen())
+    {
         return -1;
     }
 
-    // boucle principal de la fenetre
-    while(window.IsOpen()) { /* attente des evenements*/ }
+    // Boucle principale de la fenêtre.
+    while (window.IsOpen())
+    {
+        // Attente des événements.
+    }
+
     return 0;
 }
