@@ -8,24 +8,16 @@
 using namespace nkentseu;
 using namespace nkentseu::renderer;
 
-/*
-Cette fonction m'épargne d'écrire le même code deux fois.
-Elle prend en paramètre la largeur et la hauteur minimales
-de chaque fenêtre.
-*/
 void firstwindow(const int MinWidth, const int MinHeight)
 {
-    // CONFIGURATION DE LA FENETRE :
     NkWindowConfig cfg;
     cfg.title = "EXERCICE-3 2 FENETRES";
     cfg.width = 800;
     cfg.height = 600;
 
-    // DIMENSIONS MINIMALES :
     cfg.minWidth = MinWidth;
     cfg.minHeight = MinHeight;
 
-    // CREATION DE LA FENETRE ET GESTION D'ERREUR
     NkWindow window;
 
     if (!window.Create(cfg)) {
@@ -33,11 +25,9 @@ void firstwindow(const int MinWidth, const int MinHeight)
         return;
     }
 
-    // CHOIX DE L'API GRAPHIQUE :
     NkContextDesc desc;
     desc.api = NkGraphicsApi::NK_GFX_API_OPENGL;
 
-    // CREATION DU RENDER :
     NkRenderWindow target(window, desc);
 
     if (!target.IsValid()) {
@@ -46,47 +36,41 @@ void firstwindow(const int MinWidth, const int MinHeight)
         return;
     }
 
-    // CREATION DE LA BOUCLE PRINCIPALE :
     auto& events = NkEvents();
     bool running = true;
 
-    // VARIABLES QUI CONTIENDRONT LES DIMENSIONS
-    // DE LA FENETRE APRES LE DERNIER REDIMENSIONNEMENT
     int largeur = cfg.width;
     int hauteur = cfg.height;
 
     while (running && window.IsOpen()) {
-
         while (NkEvent* ev = events.PollEvent()) {
-
-            // FERMETURE DE LA FENETRE
             if (ev->Is<NkWindowCloseEvent>()) {
                 window.Close();
                 running = false;
             }
 
-            // REDIMENSIONNEMENT DE LA FENETRE
             if (auto* ev2 = ev->As<NkWindowResizeEvent>()) {
-
                 largeur = ev2->GetWidth();
                 hauteur = ev2->GetHeight();
 
-                printf("\n Nouvelle taille : %d %s %d %s", largeur, " x ", hauteur, "\n");
+                printf("\n Nouvelle taille : %d x %d\n", largeur, hauteur);
             }
         }
     }
 
-    // AFFICHAGE DE LA DERNIERE TAILLE RECUE
-    printf("\n Taille minimale observee : %d %s %d %s", largeur, " x", hauteur, "\n");
+    printf("\n Taille minimale observee : %d x %d\n", largeur, hauteur);
 }
 
 int nkmain(const nkentseu::NkEntryState& State)
 {
-    // PREMIER TEST
+    // PREMIER TEST : borne 400 x 350
     firstwindow(400, 350);
 
-    // DEUXIEME TEST
+    // DEUXIEME TEST : borne 500 x 450
     firstwindow(500, 450);
+
+    // TROISIEME TEST : aucune borne utilisateur
+    firstwindow(0, 0);
 
     return 0;
 }
