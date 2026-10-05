@@ -1,0 +1,12 @@
+REPONSE EXO 4 :
+
+Cet exercice utilise directement les composants bas niveau de Nkentseu.
+
+Le programme cree lui-meme la fenetre avec `NkWindow`, configure le contexte graphique avec `NkContextDesc`,
+ choisit OpenGL, cree une cible `NkRenderWindow`, gere les evenements avec `NkEvents().PollEvent()`
+et controle directement la boucle principale.
+
+Il se distingue donc du modele `NkCanvasApp` utilise dans l'exercice 1, 
+ou une partie de cette gestion est prise en charge par le framework d'application.
+
+donc je perds la creation et la gestion de la boucle principale

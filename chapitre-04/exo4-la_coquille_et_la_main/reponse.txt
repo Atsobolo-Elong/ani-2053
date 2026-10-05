@@ -1,0 +1,22 @@
+COMPARAISON :
+
+La difference essentielle peut etre resumee ainsi :
+```
+NkCanvasApp
+    |
+    +-- LE FRAMEWORK PREND EN CHARGE UNE PARTIE DU FONCTIONNEMENT
+```
+
+contre :
+
+```
+NkWindow + NkContextDesc + NkRenderWindow + NkEvents
+    |
+    +-- LE PROGRAMME CONTROLE DIRECTEMENT LE FONCTIONNEMENT
+```
+
+L'exercice 4 constitue donc une approche plus explicite et plus proche des composants bas niveau de Nkentseu.
+
+Le programme de l'exercice 4 reprend bien l'idee generale de l'exercice 1, mais il abandonne le modele `NkCanvasApp`.
+
+Cette modification permet de passer d'une application geree par le framework.
