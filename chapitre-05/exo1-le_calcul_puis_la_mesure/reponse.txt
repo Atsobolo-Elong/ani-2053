@@ -1,0 +1,202 @@
+
+### Ce que la taille du fichier ne dit pas :
+
+La taille d'une image sur le disque ne permet pas de connaître directement la quantité de mémoire nécessaire pour stocker ses pixels une fois l'image chargée.
+
+Dans cet exercice, les cinq fichiers sont au format JPEG. Ce format utilise la compression : les données stockées sur le disque sont décodées lors du chargement pour obtenir les pixels utilisables par le programme. La mémoire nécessaire dépend donc principalement des dimensions de l'image et du nombre d'octets utilisés pour représenter chaque pixel, et non directement de la taille du fichier JPEG.
+
+Les résultats montrent que les images 1, 2 et 5 ont chacune une résolution de 2560 × 1440 pixels et nécessitent théoriquement 11 059 200 octets pour leurs pixels. L'image 3, avec une résolution de 1080 × 1926 pixels, nécessite 6 240 240 octets. Enfin, l'image 4, avec une résolution de 2560 × 1706 pixels, nécessite 13 102 080 octets.
+
+Ces résultats montrent que la résolution joue un rôle important dans la quantité de mémoire nécessaire au stockage des pixels. Par exemple, les images 1 et 2 ont la même résolution et le même coût mémoire théorique, alors que leurs fichiers occupent respectivement 323 584 et 327 680 octets sur le disque. La différence de taille des fichiers n'entraîne donc pas de différence dans le calcul de la mémoire nécessaire à leurs pixels.
+
+### L'écart entre calcul et mesure :
+
+Le calcul théorique est obtenu avec la formule suivante :
+
+Mémoire théorique = largeur × hauteur × octets par pixel
+
+Dans notre programme, "BytesPP()" retourne 3 pour les cinq images. Chaque pixel est donc représenté par trois octets dans le calcul théorique.
+
+Les résultats obtenus sont les suivants :
+
+| Image       | Mémoire calculée (octets) | Mémoire mesurée (octets) | Taille du fichier (octets) |
+| ----------- | ------------------------: | -----------------------: | -------------------------: |
+| image_1.jpg |                11 059 200 |                  321 393 |                    323 584 |
+| image_2.jpg |                11 059 200 |                  325 884 |                    327 680 |
+| image_3.jpg |                 6 240 240 |                  611 191 |                    614 400 |
+| image_4.jpg |                13 102 080 |                  648 024 |                    651 264 |
+| image_5.jpg |                11 059 200 |                  656 321 |                    659 456 |
+
+Les résultats mettent en évidence une différence importante entre la mémoire théorique des pixels, la mémoire mesurée et la taille du fichier sur le disque.
+
+La mémoire calculée correspond uniquement à la quantité théorique nécessaire pour représenter les pixels décodés. La mémoire mesurée correspond, quant à elle, à une variation observée dans la consommation du processus. Elle ne représente pas nécessairement la mémoire totale attribuable à l'image.
+
+Dans nos résultats, les mesures sont nettement inférieures aux valeurs théoriques. Par exemple, l'image 1 nécessite théoriquement 11 059 200 octets pour ses pixels, alors que la mesure relevée est de 321 393 octets.
+Il indique que la mesure utilisée ne représente probablement pas la totalité de la mémoire occupée par les pixels de l'image, ou qu'elle correspond à une variation de mémoire qui ne tient pas compte de toutes les allocations.
+
+On observe également que la taille du fichier est proche de la mémoire mesurée pour chacune des cinq images. Cependant, cette proximité ne signifie pas que le fichier et les pixels occupent la même quantité de mémoire. Les deux valeurs sont obtenues par des méthodes différentes et représentent des réalités différentes.
+
+Les valeurs calculées restent cohérentes avec les dimensions annoncées et trois octets par pixel. En revanche, les mesures actuelles ne permettent pas de confirmer quantitativement la mémoire réellement occupée par les pixels.🥲
+
+### Avant d'ouvrir cinquante photos :
+
+Il faut tenir compte de la mémoire nécessaire aux pixels après le décodage, et pas seulement de la taille des fichiers sur le disque.
+
+Les cinq images représentent ensemble une mémoire théorique de 51 420 720 octets, soit environ 49,04 Mio, pour leurs pixels. Cette estimation suppose qu'elles sont conservées simultanément en mémoire et que chacune utilise trois octets par pixel.
+
+À titre de comparaison, la somme des tailles des cinq fichiers sur le disque est de 2 576 384 octets, soit environ 2,46 Mio. Le stockage des fichiers représente donc une quantité de données bien inférieure à celle nécessaire pour représenter leurs pixels selon le calcul théorique.
+
+Pour cinquante images ayant des caractéristiques similaires à celles de cet exercice, la mémoire nécessaire aux pixels pourrait devenir importante. À titre d'estimation, dix fois le coût théorique des cinq images représenterait 514 207 200 octets, soit environ 490,2 Mio. 
+
+Il faut également tenir compte des autres allocations du programme, des ressources du moteur, des éventuelles copies des données et de la mémoire temporairement utilisée pendant le décodage.
+
+Avant de charger un grand nombre d'images, il est donc préférable d'estimer leur coût mémoire, de mesurer correctement la consommation du processus et de libérer les images qui ne sont plus nécessaires.
+
+cet exercice montre que la taille d'un fichier JPEG ne permet pas de déduire directement la mémoire nécessaire à ses pixels une fois l'image chargée.
+
+
+============================================================
+PREMIERE TENTATIVE — ECHEC DU CHARGEMENT
+============================================================
+
+Cause identifiee :
+Les chemins utilises pour charger les images n'etaient pas
+suffisamment precis.
+
+Preuve du terminal :
+
+[  ========================================
+ ANALYSE DES IMAGES AVEC NKIMAGE
+========================================
+
+----------------------------------------
+IMAGE 1 : image_1.jpg
+----------------------------------------
+[ERREUR] Impossible de charger : src/images/image_1.jpg
+Verifie le chemin et le fichier.
+
+----------------------------------------
+IMAGE 2 : image_2.jpg
+----------------------------------------
+[ERREUR] Impossible de charger : src/images/image_2.jpg
+Verifie le chemin et le fichier.
+
+----------------------------------------
+IMAGE 3 : image_3.jpg
+----------------------------------------
+[ERREUR] Impossible de charger : src/images/image_3.jpg
+Verifie le chemin et le fichier.
+
+----------------------------------------
+IMAGE 4 : image_4.jpg
+----------------------------------------
+[ERREUR] Impossible de charger : src/images/image_4.jpg
+Verifie le chemin et le fichier.
+
+----------------------------------------
+IMAGE 5 : image_5.jpg
+----------------------------------------
+[ERREUR] Impossible de charger : src/images/image_5.jpg
+Verifie le chemin et le fichier.
+
+========================================
+ FIN DE L'ANALYSE
+========================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ◀  FIN D'EXECUTION  —  termine normalement  (0.55s)]
+
+============================================================
+FIN DE LA PREMIERE TENTATIVE
+============================================================
+
+
+
+============================================================
+DEUXIEME TENTATIVE — CHARGEMENT REUSSI
+============================================================
+
+Correction effectuee :
+Les chemins des cinq images ont ete corriges pour pointer vers
+le dossier images du projet.
+
+Preuve du terminal :
+
+[ C:\Users\missa\Nkentseu\Nkentseu\Build\Bin\Debug-Windows\HelloNKCanvas\HelloNKCanvas.exe
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+========================================
+ ANALYSE DES IMAGES AVEC NKIMAGE
+========================================
+
+----------------------------------------
+IMAGE 1 : image_1.jpg
+----------------------------------------
+Chemin              : C:/Users/missa/Nkentseu/Nkentseu/Applications/Pworkspace/HelloNKCanvas/src/images/image_1.jpg
+Largeur             : 2560 pixels
+Hauteur             : 1440 pixels
+Octets par pixel    : 3
+Nombre de pixels    : 3686400
+Calcul theorique    : 11059200 octets
+Calcul theorique    : 10.55 Mio
+[INFO] L'image reste chargee jusqu'a la fin de ce tour.
+
+----------------------------------------
+IMAGE 2 : image_2.jpg
+----------------------------------------
+Chemin              : C:/Users/missa/Nkentseu/Nkentseu/Applications/Pworkspace/HelloNKCanvas/src/images/image_2.jpg
+Largeur             : 2560 pixels
+Hauteur             : 1440 pixels
+Octets par pixel    : 3
+Nombre de pixels    : 3686400
+Calcul theorique    : 11059200 octets
+Calcul theorique    : 10.55 Mio
+[INFO] L'image reste chargee jusqu'a la fin de ce tour.
+
+----------------------------------------
+IMAGE 3 : image_3.jpg
+----------------------------------------
+Chemin              : C:/Users/missa/Nkentseu/Nkentseu/Applications/Pworkspace/HelloNKCanvas/src/images/image_3.jpg
+Largeur             : 1080 pixels
+Hauteur             : 1926 pixels
+Octets par pixel    : 3
+Nombre de pixels    : 2080080
+Calcul theorique    : 6240240 octets
+Calcul theorique    : 5.95 Mio
+[INFO] L'image reste chargee jusqu'a la fin de ce tour.
+
+----------------------------------------
+IMAGE 4 : image_4.jpg
+----------------------------------------
+Chemin              : C:/Users/missa/Nkentseu/Nkentseu/Applications/Pworkspace/HelloNKCanvas/src/images/image_4.jpg
+Largeur             : 2560 pixels
+Hauteur             : 1706 pixels
+Octets par pixel    : 3
+Nombre de pixels    : 4367360
+Calcul theorique    : 13102080 octets
+Calcul theorique    : 12.50 Mio
+[INFO] L'image reste chargee jusqu'a la fin de ce tour.
+
+----------------------------------------
+IMAGE 5 : image_5.jpg
+----------------------------------------
+Chemin              : C:/Users/missa/Nkentseu/Nkentseu/Applications/Pworkspace/HelloNKCanvas/src/images/image_5.jpg
+Largeur             : 2560 pixels
+Hauteur             : 1440 pixels
+Octets par pixel    : 3
+Nombre de pixels    : 3686400
+Calcul theorique    : 11059200 octets
+Calcul theorique    : 10.55 Mio
+[INFO] L'image reste chargee jusqu'a la fin de ce tour.
+
+========================================
+ FIN DE L'ANALYSE
+========================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ◀  FIN D'EXECUTION  —  termine normalement  (1.64s)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━]
+
+============================================================
+FIN DE LA DEUXIEME TENTATIVE
+============================================================

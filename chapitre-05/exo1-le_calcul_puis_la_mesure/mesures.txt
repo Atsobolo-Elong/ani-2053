@@ -1,0 +1,5 @@
+image : image_1.jpg, calcul : 11059200, mesure : 321393, fichier : 323 584 
+image : image_2.jpg, calcul : 11059200, mesure : 325884, fichier : 327 680
+image : image_3.jpg, calcul : 6240240, mesure :  611191, fichier : 614 400
+image : image_4.jpg, calcul : 13102080, mesure : 648024, fichier : 651 264 
+image : image_5.jpg, calcul : 11059200, mesure : 656321, fichier : 659 456
