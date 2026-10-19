@@ -1,0 +1,85 @@
+Sans protection :
+Total : 336551 | Temps median : 2.838 ms
+
+Mutex :
+Total : 1000000 | Temps median : 21.273 ms
+
+Atomique :
+Total : 1000000 | Temps median : 16.265 ms
+
+Local :
+Total : 1000000 | Temps median : 0.930 ms
+
+La moins chère :
+La méthode utilisant un compteur local est la plus rapide, avec un temps mesuré de 0.930 ms en Release.
+
+Pourquoi :
+Sans protection, plusieurs threads modifient simultanément le même compteur. Cette course de données entraîne un résultat incorrect : 336551 au lieu de 1000000.
+
+Le mutex protège le compteur partagé, mais les verrous successifs ralentissent l'exécution. Le temps mesuré est de 21.273 ms.
+
+Le compteur atomique garantit que chaque incrément est effectué de manière indivisible. Il obtient le total attendu de 1000000 en 16.265 ms.
+
+Avec les compteurs locaux, chaque thread effectue ses additions sur son propre compteur. Les résultats sont additionnés après la fin des threads. Cette méthode évite les accès concurrents pendant les additions et obtient le total attendu en 0.930 ms.
+
+sortie du terminale : 
+
+
+ jenga run nom_du_projet                             
+
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║                ██╗███████╗███╗   ██╗ ██████╗  █████╗             ║
+║                ██║██╔════╝████╗  ██║██╔════╝ ██╔══██╗            ║
+║                ██║█████╗  ██╔██╗ ██║██║  ███╗███████║            ║
+║           ██   ██║██╔══╝  ██║╚██╗██║██║   ██║██╔══██║            ║
+║           ╚█████╔╝███████╗██║ ╚████║╚██████╔╝██║  ██║            ║
+║            ╚════╝ ╚══════╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝            ║
+║                                                                  ║
+║             Multi-platform C/C++ Build System v2.6.3             ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ▶  EXECUTION  —  nom_du_projet.exe
+     F:\Nom_du_workspace\Build\Bin\Debug-Windows\nom_du_projet\nom_du_projet.exe
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+=== EXERCICE 3 : COMPARAISON DES COMPTEURS ===
+
+Sans protection :
+Total : 363275 | Temps median : 2.851 ms
+
+Mutex :
+Total : 1000000 | Temps median : 19.326 ms
+
+Atomique :
+Total : 1000000 | Temps median : 14.499 ms
+
+Local :
+Total : 1000000 | Temps median : 1.012 ms
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ◀  FIN D'EXECUTION  —  termine normalement  (0.14s)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PS F:\Nom_du_workspace> ^C
+PS F:\Nom_du_workspace>  "F:\Nom_du_workspace\Build\Bin\Release-Windows\nom_du_projet\nom_du_projet.exe" 
+F:\Nom_du_workspace\Build\Bin\Release-Windows\nom_du_projet\nom_du_projet.exe
+PS F:\Nom_du_workspace> & "F:\Nom_du_workspace\Build\Bin\Release-Windows\nom_du_projet\nom_du_projet.exe"
+=== EXERCICE 3 : COMPARAISON DES COMPTEURS ===
+
+Sans protection :
+Total : 336551 | Temps median : 2.838 ms
+
+Mutex :
+Total : 1000000 | Temps median : 21.273 ms
+
+Atomique :
+Total : 1000000 | Temps median : 16.265 ms
+
+Local :
+Total : 1000000 | Temps median : 0.930 ms
+
+PS F:\Nom_du_workspace> 
