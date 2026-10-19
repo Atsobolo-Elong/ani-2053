@@ -1,0 +1,24 @@
+Tâche : 200 tâches de 1000 additions chacune.
+
+Réserve :
+Mesure 1 : 0.273 ms
+Mesure 2 : 0.261 ms
+Mesure 3 : 0.291 ms
+
+Fils :
+Mesure 1 : 20.347 ms
+Mesure 2 : 20.210 ms
+Mesure 3 : 18.582 ms
+
+Ouvriers : 8
+
+Tâche longue : 100000 additions par tâche.
+Réserve : 11.948 ms
+Fils : 25.329 ms
+
+Pourquoi :
+Le pool de threads est nettement plus rapide pour les tâches courtes. Il réutilise ses 8 ouvriers pour exécuter les tâches, ce qui évite de créer un nouveau thread pour chacune d'elles. Pour les tâches courtes, les threads créés manuellement prennent beaucoup de temps à démarrer par rapport au temps nécessaire pour effectuer les calculs.
+
+Avec les tâches longues, le pool reste plus rapide : 11.948 ms contre 25.329 ms pour les threads manuels. Les calculs plus longs augmentent le temps total d'exécution des deux méthodes, mais le coût de création des threads manuels reste important. Dans ce test, le pool est donc plus performant pour les tâches courtes comme pour les tâches longues.
+
+Les résultats de vérification sont identiques pour les deux méthodes : 100100000 pour les tâches courtes et 1000010000000 pour les tâches longues. Cela confirme que les deux méthodes ont effectué les calculs attendus.
