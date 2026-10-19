@@ -1,0 +1,163 @@
+Constat :
+La compilation du programme est réussie avec Jenga en configuration Debug, avec la chaîne de compilation clang-mingw pour Windows x86_64. La première exécution, correspondant à la version corrigée, se termine normalement en environ 0,30 seconde. Les deux threads acquièrent successivement les mutex m1 puis m2, et le message « Programme termine sans interblocage. » est affiché.
+
+Lors de la deuxième exécution, la version volontairement incorrecte reproduit l’interblocage. Le thread A acquiert m1, tandis que le thread B acquiert m2. Ensuite, le thread A attend m2 et le thread B attend m1. Le programme reste bloqué et ne termine pas normalement.
+
+Pause :
+Dans la version avec interblocage, le thread A est bloqué sur la ligne qui tente d’acquérir m2 avec NkScopedLock<NkMutex> verrou2(m2). Le thread B est bloqué sur la ligne qui tente d’acquérir m1 avec NkScopedLock<NkMutex> verrou1(m1). Les numéros exacts de ces lignes doivent être relevés dans le débogueur pendant la pause de l’exécution.
+
+Correction :
+La correction consiste à imposer le même ordre d’acquisition des mutex aux deux threads : m1 puis m2. Les deux mutex, les verrous de portée NkScopedLock et les pauses de 100 ms sont conservés. Ainsi, un thread ne détient plus m2 en attendant m1 pendant que l’autre détient m1 en attendant m2. La version corrigée compile et se termine normalement.
+
+Règle :
+Lorsqu’un programme utilise plusieurs mutex, tous les threads doivent les acquérir dans un ordre global cohérent. Si un thread acquiert m1 avant m2, les autres threads qui utilisent ces deux mutex doivent respecter le même ordre. Cette règle évite le cycle d’attente circulaire responsable de l’interblocage. Les verrous de portée permettent ensuite de libérer automatiquement les mutex à la sortie de leur portée.
+
+retour du terminale : 
+
+ F:\Nom_du_workspace> jenga build --project nom_du_projet
+
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║                ██╗███████╗███╗   ██╗ ██████╗  █████╗             ║
+║                ██║██╔════╝████╗  ██║██╔════╝ ██╔══██╗            ║
+║                ██║█████╗  ██╔██╗ ██║██║  ███╗███████║            ║
+║           ██   ██║██╔══╝  ██║╚██╗██║██║   ██║██╔══██║            ║
+║           ╚█████╔╝███████╗██║ ╚████║╚██████╔╝██║  ██║            ║
+║            ╚════╝ ╚══════╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝            ║
+║                                                                  ║
+║             Multi-platform C/C++ Build System v2.6.3             ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+Loading workspace...
+
+Configuration: Debug
+Target:        Windows x86_64
+Toolchain:     clang-mingw
+
+Build Order (1 projects):
+  1. nom_du_projet [CONSOLE_APP]
+
+
+╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+║  Project: nom_du_projet                                                   Kind: CONSOLE_APP  ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+
+ℹ Found 1 source file(s)
+✓   [1/1] Compiled: main.cpp
+ℹ Linking...
+✓ Built: Build\Bin\Debug-Windows\nom_du_projet\nom_du_projet.exe
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│  ✓ Build Successful                                                             Time: 1.50s  │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════════════════
+                                BUILD COMPLETED                                 
+════════════════════════════════════════════════════════════════════════════════
+Projects Built:  1/1
+Time:           1.50s
+Status:         ✓ SUCCESS
+════════════════════════════════════════════════════════════════════════════════
+
+PS F:\Nom_du_workspace> jenga run nom_du_projet                                                          
+
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║                ██╗███████╗███╗   ██╗ ██████╗  █████╗             ║
+║                ██║██╔════╝████╗  ██║██╔════╝ ██╔══██╗            ║
+║                ██║█████╗  ██╔██╗ ██║██║  ███╗███████║            ║
+║           ██   ██║██╔══╝  ██║╚██╗██║██║   ██║██╔══██║            ║
+║           ╚█████╔╝███████╗██║ ╚████║╚██████╔╝██║  ██║            ║
+║            ╚════╝ ╚══════╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝            ║
+║                                                                  ║
+║             Multi-platform C/C++ Build System v2.6.3             ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ▶  EXECUTION  —  nom_du_projet.exe
+     F:\Nom_du_workspace\Build\Bin\Debug-Windows\nom_du_projet\nom_du_projet.exe
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Thread A : mutex m1 acquis.
+Thread A : mutex m2 acquis.
+Thread B : mutex m1 acquis.
+Thread B : mutex m2 acquis.
+Programme termine sans interblocage.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ◀  FIN D'EXECUTION  —  termine normalement  (0.30s)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PS F:\Nom_du_workspace> jenga build --project nom_du_projet
+
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║                ██╗███████╗███╗   ██╗ ██████╗  █████╗             ║
+║                ██║██╔════╝████╗  ██║██╔════╝ ██╔══██╗            ║
+║                ██║█████╗  ██╔██╗ ██║██║  ███╗███████║            ║
+║           ██   ██║██╔══╝  ██║╚██╗██║██║   ██║██╔══██║            ║
+║           ╚█████╔╝███████╗██║ ╚████║╚██████╔╝██║  ██║            ║
+║            ╚════╝ ╚══════╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝            ║
+║                                                                  ║
+║             Multi-platform C/C++ Build System v2.6.3             ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+Loading workspace...
+
+Configuration: Debug
+Target:        Windows x86_64
+Toolchain:     clang-mingw
+
+Build Order (1 projects):
+  1. nom_du_projet [CONSOLE_APP]
+
+
+╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+║  Project: nom_du_projet                                                   Kind: CONSOLE_APP  ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+
+ℹ Found 1 source file(s)
+✓   [1/1] Compiled: main.cpp
+ℹ Linking...
+✓ Built: Build\Bin\Debug-Windows\nom_du_projet\nom_du_projet.exe
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│  ✓ Build Successful                                                             Time: 1.52s  │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════════════════
+                                BUILD COMPLETED                                 
+════════════════════════════════════════════════════════════════════════════════
+Projects Built:  1/1
+Time:           1.53s
+Status:         ✓ SUCCESS
+════════════════════════════════════════════════════════════════════════════════
+
+PS F:\Nom_du_workspace> jenga run nom_du_projet            
+
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║                ██╗███████╗███╗   ██╗ ██████╗  █████╗             ║
+║                ██║██╔════╝████╗  ██║██╔════╝ ██╔══██╗            ║
+║                ██║█████╗  ██╔██╗ ██║██║  ███╗███████║            ║
+║           ██   ██║██╔══╝  ██║╚██╗██║██║   ██║██╔══██║            ║
+║           ╚█████╔╝███████╗██║ ╚████║╚██████╔╝██║  ██║            ║
+║            ╚════╝ ╚══════╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝            ║
+║                                                                  ║
+║             Multi-platform C/C++ Build System v2.6.3             ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ▶  EXECUTION  —  nom_du_projet.exe
+     F:\Nom_du_workspace\Build\Bin\Debug-Windows\nom_du_projet\nom_du_projet.exe
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Thread A : mutex m1 acquis.Thread B : mutex m2 acquis.
+
+Thread B : attente du mutex m1...
+Thread A : attente du mutex m2...
