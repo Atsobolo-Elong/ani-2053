@@ -1,0 +1,23 @@
+Module : NKStream
+
+D'après le projet :
+En observant uniquement les dépendances directes de NKStream dans Canvas.jenga, je prévois que ce module :
+- s'appuie sur NKCore et NKMemory pour les types de base et la gestion de la mémoire ;
+- utilise NKContainers pour organiser certaines données ;
+- peut interagir avec le système de fichiers grâce à NKFileSystem ;
+- s'appuie sur NKPlatform pour les différences entre systèmes d'exploitation et sur NKLogger pour les journaux ;
+- pourrait utiliser NKThreading pour des opérations concurrentes, mais les dépendances seules ne permettent pas de l'affirmer.
+
+Après l'en-tête :
+Le fichier principal examiné est include/NKStream/NkStream.h. Il définit une interface abstraite de flux nommée NkStream dans l'espace de noms nkentseu.
+Cette interface prévoit :
+- l'ouverture d'un flux avec un chemin et un mode, sa fermeture et la vérification de son état ;
+- la lecture et l'écriture de données, sous forme typée ou brute en octets ;
+- le déplacement dans le flux (Seek), la position courante (Tell), la taille (Size) et la détection de fin (IsEOF) ;
+- la sélection et la récupération d'un encodage : système par défaut, UTF-8, UTF-16 little-endian ou UTF-16 big-endian.
+L'en-tête inclut aussi des éléments liés à la plateforme, ainsi que des en-têtes système différents selon que la cible est Windows ou non.
+Attention : ce fichier définit surtout le contrat commun de NkStream ; il ne suffit pas à lui seul pour décrire le comportement précis des classes concrètes comme NkFileStream, NkBinaryStream ou NkConsoleStream.
+
+Mes erreurs :
+- À compléter après comparaison entre ma prédiction initiale et le contenu de NkStream.h.
+- Indiquer précisément ce que j'avais supposé à tort, ce que je ne pouvais pas savoir avec les seules dépendances, et ce que l'en-tête a réellement confirmé.
