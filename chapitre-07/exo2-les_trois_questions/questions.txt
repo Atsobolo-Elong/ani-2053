@@ -1,0 +1,11 @@
+Ce qu'il possède :
+À compléter après inspection des données membres situées vers la fin de `include/NKCanvas/Renderer/Core/NkTransformable.h`. Compter les véritables champs d'état. Mettre à part les constantes `static`, les alias de types (`using`/`typedef`) et les méthodes, car ils ne représentent pas chacun un état propre de l'objet.
+
+Qui l'appelle :
+À compléter à partir de la recherche de `NkTransformable` dans `include/`. Citer les fichiers et les lignes utiles, puis distinguer les véritables usages (par exemple, déclaration d'un objet, héritage ou appel d'une méthode) des simples mentions dans les commentaires, les inclusions ou les déclarations.
+
+Ce qu'il promet :
+À compléter en résumant uniquement les noms des méthodes publiques déclarées dans l'en-tête, sans lire le corps des méthodes. Regrouper les promesses par fonction : transformation, position, rotation, échelle ou autres opérations seulement si ces noms apparaissent réellement dans l'en-tête.
+
+Ce que je n'ai pas lu :
+Je n'ai pas lu le corps des méthodes de `NkTransformable.h` ni les implémentations dans les fichiers `.cpp`. Je me suis limité aux données membres, aux déclarations publiques et à la recherche du nom dans `include/`, car ces éléments suffisent pour décrire l'état de l'objet, repérer ses utilisateurs et résumer son contrat sans étudier son fonctionnement interne.
