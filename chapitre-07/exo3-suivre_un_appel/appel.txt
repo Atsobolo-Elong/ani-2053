@@ -1,0 +1,14 @@
+Les sauts :
+1. `include/NKCanvas/Canvas/NkCanvasApp.h` — `NkCanvasApp::OnRender` : l'énoncé indique que `target.Clear(couleur)` est appelé dans cette fonction. Ce premier point situe l'appel dans le cycle de rendu de l'application ; vérifier dans le kit le chemin exact du fichier et la signature si nécessaire.
+2. `include/NKCanvas/Renderer/Core/NkRenderTarget.h` — `NkRenderTarget::Clear(...)` : rechercher la déclaration de `Clear` dans l'en-tête de la cible de rendu. Cette étape doit confirmer le type de cible, le paramètre couleur et si la méthode est virtuelle ou redirige le travail vers une autre fonction.
+3. `include/NKCanvas/Renderer/Core/NkRenderTarget.h` ou l'en-tête appelé par son implémentation — fonction appelée par `Clear` : suivre le prochain appel explicitement visible dans le corps de `Clear`, s'il est présent dans un en-tête. Noter le nom exact du fichier et de la fonction après inspection.
+4. En-tête du backend de rendu — fonction concrète appelée par l'étape précédente, si elle est déclarée dans `include/` : relever la décision prise (par exemple, transmission au contexte ou à l'API graphique), sans supposer un détail qui n'apparaît pas dans le code.
+
+Arrêt :
+À compléter après vérification du chemin réel dans le kit. L'arrêt attendu est la première limite clairement identifiée, par exemple une fonction virtuelle pure, une déclaration dont le corps est absent des en-têtes, ou un appel vers une bibliothèque compilée sous `lib/`.
+
+Pourquoi là :
+Il faut s'arrêter lorsque l'en-tête ne permet plus de suivre la route avec certitude : méthode virtuelle pure sans implémentation visible, corps absent après recherche, appel système ou fonction fournie uniquement par une bibliothèque compilée. Ne pas inventer le nom du dernier appel ni affirmer qu'une API graphique est atteinte sans preuve dans le code.
+
+Ce que je sais maintenant :
+L'appel `target.Clear(couleur)` est déclenché pendant `NkCanvasApp::OnRender`, d'après l'énoncé. Le chemin précis au-delà de cet appel doit être confirmé en suivant les déclarations et les appels réellement présents dans les en-têtes du kit Canvas du 22 octobre 2026. Toute étape non vérifiée, notamment la fonction concrète de backend et le comportement final, reste une supposition et doit être signalée comme telle.
