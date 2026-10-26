@@ -1,0 +1,28 @@
+Le commentaire :
+Dans `include/NKCanvas/Renderer/Core/NkIRenderer2D.h`, le commentaire d’en-tête affirme :
+« Implementations live in:
+   Backends/Software/NkSoftwareRenderer2D
+   Backends/OpenGL/NkOpenGLRenderer2D
+   Backends/Vulkan/NkVulkanRenderer2D
+   Backends/DirectX/NkDX11Renderer2D
+   Backends/DirectX/NkDX12Renderer2D »
+Il présente donc ces chemins comme les emplacements des implémentations.
+
+Le code :
+Dans le kit Canvas, les en-têtes correspondants se trouvent sous `include/NKCanvas/Backend/`, au singulier `Backend`, par exemple :
+- `include/NKCanvas/Backend/Software/NkSoftwareRenderer2D.h`
+- `include/NKCanvas/Backend/OpenGL/NkOpenGLRenderer2D.h`
+- `include/NKCanvas/Backend/Vulkan/NkVulkanRenderer2D.h`
+- `include/NKCanvas/Backend/DirectX/NkDX11Renderer2D.h`
+- `include/NKCanvas/Backend/DirectX/NkDX12Renderer2D.h`
+Ces chemins réels ne correspondent pas aux chemins indiqués dans le commentaire : celui-ci emploie `Backends/` au pluriel et omet le préfixe `include/NKCanvas/`.
+
+La preuve :
+Depuis la racine du kit Canvas du 22 octobre 2026, on peut vérifier les deux côtés avec PowerShell :
+`Select-String -Path .\include\NKCanvas\Renderer\Core\NkIRenderer2D.h -Pattern 'Implementations live in|Backends/'`
+puis :
+`Get-ChildItem .\include\NKCanvas\Backend -Recurse -File | Where-Object { $_.Name -match 'Nk(Software|OpenGL|Vulkan|DX11|DX12)Renderer2D\.h' } | Select-Object -ExpandProperty FullName`
+La première commande affiche le texte du commentaire ; la seconde affiche les chemins réels des en-têtes. La contradiction vérifiable porte sur les chemins annoncés, pas sur le rôle des backends eux-mêmes.
+
+Ce qu'il dit de son auteur :
+L’auteur a probablement voulu donner rapidement des repères vers les différentes implémentations, en s’appuyant sur une ancienne organisation des dossiers ou sur une notation abrégée. Cela ne prouve pas qu’il ne connaît pas le code : cela montre plutôt qu’un commentaire de documentation peut devenir obsolète lors d’un déplacement ou d’un renommage de fichiers. L’endroit gagnerait à mettre à jour ce commentaire en même temps que l’organisation du kit, afin que les indications de navigation restent fiables.
