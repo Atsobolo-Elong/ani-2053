@@ -1,0 +1,30 @@
+Par le texte :
+Commande : Get-ChildItem -Recurse F:\Nom_du_workspace\kit\2D\Canvas\include -Filter *.h | Select-String -Pattern ".Draw(" ; puis Select-String -Path .\nom_du_projet\src\main.cpp -Pattern ".Draw(".
+Dans le kit (24 occurrences) :
+- NKCanvas\Renderer\Core\NkIRenderer2D.h:175      drawable.Draw(*this);
+- NKCanvas\Renderer\Core\NkRenderer2D.h:193        drawable.Draw(*mTarget, states);
+- NKCanvas\Renderer\Targets\NkRenderTarget.h:112  drawable.Draw(*this, states);
+- NkDrawable.h:14,26 ; NkRenderer2D.h:28,29 ; NkRenderStates.h:18 ; NkTransformable.h:30 ; NkVertexArray.h:15 ; NkFont.h:11 ; NkMaterial.h:20,28,46,196 ; NkShader.h:58 ; NkSprite.h:9 ; NkCircleShape.h:12 ; NkConvexShape.h:17 ; NkLineShape.h:11 ; NkRectangleShape.h:14 ; NkRenderTarget.h:20,26 ; NkRenderTexture.h:14 ; NkRenderWindow.h:29 : des "target.Draw(...)" ou "r.Draw(...)" d'exemple, tous dans des commentaires // ou ///, pas des appels executes.
+Dans appelants.cpp (2 occurrences) :
+- ligne 44 : target.Draw(vertices, 4, NkPrimitiveType::NK_LINES, states);   (envoi des sommets, dans DeuxSegments::Draw)
+- ligne 55 : target.Draw(objet);   (dans OnRender — l'appel etudie)
+
+Par la pile :
+Geste : point d'arret sur la ligne 44 (target.Draw(vertices, 4, NK_LINES, states)) dans DeuxSegments::Draw, lancement de nom_du_projet.exe sous le debogueur (GDB, F5 dans VS Code), pile relevee au premier arret.
+AppelantsApp::DeuxSegments::Draw(const DeuxSegments*, NkRenderTarget&, const NkRenderStates&)   main.cpp:44
+nkentseu::renderer::NkRenderTarget::Draw(NkRenderTarget*, const NkDrawable&, const NkRenderStates&)   kit\...\NKCanvas\Renderer\Targets\NkRenderTarget.h:112
+AppelantsApp::OnRender(AppelantsApp*, NkRenderWindow&)   main.cpp:55
+nkentseu::renderer::NkCanvasApp::Execute(NkCanvasApp*, const NkEntryState&)   NKCanvas\App\NkCanvasApp.cpp:223 (fichier de la bibliotheque, absent du kit : chemin c:\Users\...\Nkentseu\Kernel\Runtime\NKCanvas\src\NKCanvas\App\NkCanvasApp.cpp)
+nkentseu::renderer::NkCanvasApp::Run<AppelantsApp>(const NkEntryState&)   kit\...\NKCanvas\App\NkCanvasApp.h:204
+nkmain(const nkentseu::NkEntryState&)   main.cpp:60
+WinMain(HINSTANCE, HINSTANCE, LPSTR, int)   kit\...\NKWindow\EntryPoints\NkWindowsDesktop.h:84
+__tmainCRTStartup()   crtexe.c:236 (runtime MinGW)
+mainCRTStartup()   crtexe.c:122 (runtime MinGW)
+(Cadres suivants : ntdll.dll, kernel32.dll, CoreMessaging.dll — demarrage des fils systeme du processus, hors sujet pour notre appel.)
+
+Les différences :
+- Le texte dit "target.Draw(objet)" a la ligne 55 ; la pile montre DeuxSegments::Draw en execution. L'appel par methode virtuelle porte le nom de la classe de base (NkDrawable), et la recherche textuelle ne peut pas dire quelle classe derivee tourne vraiment : c'est la repartition virtuelle qui decide a l'execution.
+- Le texte trouve environ 21 lignes de plus que la pile : ce sont des commentaires et des exemples d'usage ("target.Draw(sprite);" dans NkSprite.h, NkCircleShape.h, etc.). La recherche dans le texte trouve des mots ; la pile ne montre que des appels reels du moment.
+- NkRenderTarget.h:112 (drawable.Draw(*this, states);) apparait dans les deux listes : c'est le seul appel du kit reellement emprunte par ce programme. Le texte ne pouvait pas savoir lequel des trois appels trouves (NkIRenderer2D.h:175, NkRenderer2D.h:193, NkRenderTarget.h:112) serait execute ; la pile le dit.
+- La pile contient des cadres que le texte ne trouve pas, parce qu'ils n'ecrivent pas ".Draw(" : NkCanvasApp::Execute (boucle de rendu de la coquille), Run<AppelantsApp> (patron de methode), nkmain, WinMain, et les cadres du runtime MinGW (crtexe.c) et des DLL systeme. NkCanvasApp.cpp:223 cite meme un fichier .cpp qui n'est pas dans le kit : c'est du code de la bibliotheque, compile chez l'auteur du moteur (chemin c:\Users\...) — il compte quand meme dans la pile, mais aucune recherche dans include/ ne peut le trouver.
+- Reciproquement, la ligne 44 de appelants.cpp (target.Draw(vertices, ...)) est trouvee par le texte et n'est pas un appelant : elle est le corps de DeuxSegments::Draw, la fonction la plus haute de la pile. Le texte melange appelants et corps des appeles ; la pile, elle, distingue les deux.
