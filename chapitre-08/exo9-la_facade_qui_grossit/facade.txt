@@ -1,0 +1,28 @@
+Publiques :
+Compte : 25 methodes publiques dans NKCanvas/Renderer/Targets/NkRenderTarget.h.
+Regle de compte : chaque surcharge comptee a part (pour l'appelant, chaque surcharge est une entree distincte de la facade) ; le destructeur compte aussi ; les methodes non virtuelles (ResetView, IsViewCustom, Draw(NkDrawable), etc.) comptent comme les virtuelles.
+Les noms : ~NkRenderTarget ; Clear ; Display ; SetView ; GetView ; GetDefaultView ; ResetView ; IsViewCustom ; SetViewport ; GetViewport ; SetResizePolicy ; GetResizePolicy ; GetDesignSize ; GetSize ; Draw(NkDrawable&) ; Draw(NkVertexArray&) ; Draw(NkVertex*, count, primitive, states) ; Draw(NkIDrawable2D&) ; MapPixelToCoords ; MapCoordsToPixel ; GetRenderer() ; GetRenderer() const ; GetRenderer2D() ; GetRenderer2D() const ; Capture. Draw existe donc en 4 surcharges.
+
+Utiles :
+4 methodes ont servi mes programmes de ce sprint, directement ou par la boucle de NkCanvasApp :
+- Clear — appele directement dans OnRender (programme de l'exercice du chapitre 7 : target.Clear()).
+- Draw(NkDrawable&) — appele directement : target.Draw(objet), l'appel etudie au chapitre 7.
+- Draw(NkVertex*, count, primitive, states) — appele directement dans le Draw de ma classe derivee de NkDrawable : target.Draw(vertices, 4, NK_LINES, states).
+- Display — pas appele par mon code, mais par la boucle de NkCanvasApp : mon OnRender ne faisait que Clear et Draw, et la frame apparaissait ; c'est donc la coquille qui appelle Display en fin de frame. La promesse des trois appels (Clear, Draw, Display) est bien celle que la coquille tient pour moi.
+(GetSize est probablement lu par la coquille pour suivre la taille, mais je ne l'ai pas prouve dans ce que j'ai lu : je la classe dans les autres.)
+
+Les autres :
+21 methodes, chacune repondant a un besoin precis :
+- Camera : SetView, GetView, GetDefaultView, ResetView, IsViewCustom — poser une vue custom et revenir a la vue par defaut avec suivi automatique du redimensionnement (jeux a camera).
+- Viewport : SetViewport, GetViewport — rendre dans une sous-region pixel (mini-map, ecran partage).
+- Politique de redimensionnement : SetResizePolicy, GetResizePolicy, GetDesignSize — ce que devient l'image quand la cible change de taille (suivre la fenetre, etirer, bandes, rognage, echelle entiere).
+- Dimensions : GetSize — lire la taille en pixels de la cible.
+- Raccourci : Draw(NkVertexArray&) — dessiner un tableau de sommets sans ecrire le Draw raw soi-meme.
+- Compat ancienne interface : Draw(NkIDrawable2D&) — PROVISOIRE : son propre commentaire dit "Compat... Sera retire quand NkSprite/NkText auront migre vers NkDrawable (etape A.8)" ; l'en-tete du fichier confirme ce provisoire ("En attendant la migration NkSprite/NkText (etape A.8)", deux interfaces Draw cohabitant).
+- Mapping : MapPixelToCoords, MapCoordsToPixel — convertir un clic ecran en coordonnees monde et inversement.
+- Echappatoire bas niveau : GetRenderer() et GetRenderer() const, GetRenderer2D() et GetRenderer2D() const — acceder au renderer interne pour l'interop avec les dorsaux ; quatre methodes (const et non-const) pour deux besoins.
+- Capture : Capture(path) — readback GPU vers un fichier image ; son defaut rend false ("Defaut : non supporte ; surcharge par cible/backend") — un defaut qui avoue que toutes les cibles ne savent pas.
+A relever aussi, dans le meme esprit provisoire : l'en-tete du fichier dit que NkRenderTexture est "livre en stub pour l'instant" — une des deux implementations concretes de la facade est incomplete.
+
+Le rapport :
+25 methodes publiques, dont 4 utiles a mes programmes de ce sprint : le rapport est de 4/25, soit 16 % ; le cas courant (Clear, Draw, Display) en couvre 3, soit 12 %. La promesse est tenue — mon programme du chapitre 7 n'a ecrit que Clear et Draw, la coquille a fait le reste, rien de plus n'a ete demande — mais la facade a grossi bien au-dela de sa promesse : 21 methodes (84 %) servent d'autres besoins (camera, viewport, resize, mapping, echappatoires bas niveau, capture), et 6 des 25 concernent l'acces a ce que la facade etait censee cacher (GetRenderer x2, GetRenderer2D x2, plus les deux Draw dual-interface). Le signe le plus net que la facade a grossi sans tri : une methode (Draw(NkIDrawable2D&)) est declaree provisoire par son propre commentaire, et les const/non-const doublent quatre methodes pour deux besoins. Verdict : la promesse des trois appels tient encore, chiffres a l'appui (aucun de mes programmes de ce sprint n'a eu besoin d'en sortir) ; mais 84 % de la surface publique repond a d'autres besoins, dont un provisoire — une facade qui cache toujours, mais qui expose aussi beaucoup de ce qu'elle devait simplifier.
