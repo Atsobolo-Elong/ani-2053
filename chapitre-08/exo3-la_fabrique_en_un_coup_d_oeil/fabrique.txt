@@ -1,0 +1,20 @@
+Recherche :
+Commande : Get-ChildItem .\include -Recurse -File -Filter *.h | Select-String -Pattern 'NkOpenGLRenderer2D' | Select-Object Path, LineNumber, Line.
+Resultat : 12 occurrences dans 6 fichiers. Dans le dossier du dorsal (Backend\OpenGL\NkOpenGLRenderer2D.h) : 4 occurrences, la declaration de la classe et ses methodes. Hors du dossier : 8 occurrences dans 4 fichiers (liste ci-dessous).
+Fichier de la fabrique ouvert : NKCanvas/Renderer/Core/NkRenderer2DFactory.h — il ne nomme aucun dorsal : ni NkOpenGLRenderer2D, ni aucun autre. Ses methodes rendent des NkIRenderer2D* et parlent de NkIGraphicsContext ; les noms concrets ne sont ni dans son en-tete, ni nulle part dans include/ hors du dossier du dorsal. Le choix de la classe concrete se fait donc dans l'implementation de la fabrique (fichier .cpp du moteur, non livre dans le kit).
+
+Hors de son dossier :
+- NkIRenderer2D.h:15 — commentaire (liste d'exemple des implementations dans l'en-tete de l'interface : "Backends/OpenGL/NkOpenGLRenderer2D"). Pas un appel.
+- NkRenderer2D.h:19 — commentaire (meme liste des dorsaux dans l'en-tete d'un autre en-tete du moteur). Pas un appel.
+- NkTextureBackend.h:22 — commentaire ("EXEMPLE D'ENREGISTREMENT" : texte d'explication). Pas un appel.
+- NkTextureBackend.h:24 — commentaire (ligne d'exemple du meme bloc, "&NkOpenGLRenderer2D..."). Pas un appel.
+- NkTextureBackend.h:25 — commentaire (suite du meme exemple). Pas un appel.
+- NkTextureBackend.h:26 — commentaire (suite du meme exemple). Pas un appel.
+- NkTextureBackend.h:27 — commentaire (suite du meme exemple). Pas un appel.
+- NkTextureBackend.h:28 — commentaire (suite du meme exemple). Pas un appel.
+- NkGuiDrawListRaster.h:35 — commentaire (mention documentaire "OpenGL (...)" dans un en-tete de NKGui). Pas un appel.
+Total : 8 lignes hors du dossier, toutes des commentaires ou exemples d'usage ; aucune ligne de code ne nomme NkOpenGLRenderer2D hors de Backend\OpenGL\.
+
+Conclusion :
+La fabrique fait son travail. Le nom de la classe concrete NkOpenGLRenderer2D n'apparait en code que dans son propre dossier (Backend\OpenGL\NkOpenGLRenderer2D.h) : aucune ligne de code hors du dossier ne le nomme, donc aucun fichier du kit ne choisit le dorsal OpenGL a la place de la fabrique. Les huit occurrences exterieures sont toutes de la documentation (listes de dorsaux dans les en-tetes, exemples d'enregistrement de texture) : elles montrent le nom aux lecteurs, elles ne l'utilisent pas — un nom dans un commentaire n'est pas un appel.
+NkRenderer2DFactory.h lui-meme ne nomme aucun dorsal : il rend des pointeurs NkIRenderer2D et prend un NkIGraphicsContext ; la designation des classes concretes vit dans son implementation (.cpp du moteur, absent du kit), le seul endroit qui doit connaitre les noms. L'appelant ne sait pas quelle classe il a obtenu — c'est exactement la definition d'une fabrique qui fait son travail : les classes concretes ne tra nent nulle part, le choix ne s'est pas repandu dans le programme. Les commentaires qui citent le nom (NkIRenderer2D.h, NkRenderer2D.h, NkTextureBackend.h) datent peut-etre, comme la liste a cinq dorsaux de NkIRenderer2D.h qui oublie Metal, mais ils ne creent rien : seuls des fichiers d'exemple documentaires, jamais du code.
