@@ -1,0 +1,37 @@
+Stratégie :
+
+Le motif Stratégie est représenté par l'interface `NkIRenderer2D`, située dans `include/NKCanvas/Renderer/Core/NkIRenderer2D.h`. Elle permet d'utiliser différents moteurs de rendu derrière une interface commune. Les classes concrètes des dorsaux constituent les différentes mises en œuvre de cette interface. Le principe est donc bien présent dans l'architecture du moteur de rendu 2D.
+
+Fabrique :
+
+Le motif Fabrique est présent dans `include/NKCanvas/Renderer/Core/NkRenderer2DFactory.h`, ligne 29 :
+`class NkRenderer2DFactory {`
+
+Cette classe est également mentionnée dans `include/NKCanvas/Renderer/Core/NkIRenderer2D.h`, notamment dans le commentaire d'utilisation de la fabrique. Il s'agit d'une véritable classe dédiée à la création du moteur de rendu, et non d'une simple mention dans un commentaire.
+
+Façade :
+
+La classe `NkCanvasGuiApp`, dans `include/NKCanvas/App/NkCanvasGuiApp.h`, constitue une piste pour le motif Façade : elle rassemble plusieurs éléments nécessaires à l'utilisation de NKCanvas et de NKGui. Cependant, les recherches effectuées ne suffisent pas à confirmer précisément que cette classe constitue une façade au sens strict du patron de conception.
+
+Observateur :
+
+Le système d'événements fournit un mécanisme de diffusion et de traitement des événements. Le fichier `include/NKEvent/NkEventDispatcher.h` contient notamment les méthodes `Dispatch` aux lignes 121 et 138, ainsi que la macro `NK_DISPATCH` à la ligne 189. Ces éléments montrent la distribution des événements aux traitements concernés. Le motif Observateur est donc représenté par ce mécanisme de notification.
+
+Singleton :
+
+Le fichier `include/NKEvent/NkEventDispatcher.h` mentionne, dans ses commentaires aux lignes 24 et 233, une instance globale sans état nommée `NkInput`. Cette approche ressemble à un accès global de type Singleton. Toutefois, les résultats de recherche disponibles ne permettent pas de confirmer la déclaration exacte de cette instance dans le code actif. Il faut donc distinguer cette indication documentaire d'une implémentation vérifiée.
+
+Adaptateur :
+
+Le fichier `include/NKCanvas/UI/NkGuiCanvasBackend.h` contient la classe `NkGuiCanvasBackend`, déclarée à la ligne 26 :
+`class NkGuiCanvasBackend {`
+
+Le commentaire d'en-tête, ligne 6, indique qu'elle permet de rendre une liste `nkgui::NkGuiDrawList` à travers NKCanvas (`NkIRenderer2D`). Cette classe fait le lien entre les deux systèmes et constitue un exemple d'adaptation entre interfaces.
+
+Composite :
+
+Les classes `NkSprite` et `NkShape` héritent notamment de `NkTransformable` et de `NkDrawable`. On retrouve leurs déclarations dans `include/NKCanvas/Renderer/Resources/NkSprite.h`, ligne 40, et `include/NKCanvas/Renderer/Shapes/NkShape.h`, ligne 40. Cependant, cet héritage ne suffit pas à démontrer le motif Composite : il faudrait identifier une structure permettant de traiter uniformément un objet et un groupe d'objets. Les recherches actuelles ne confirment pas cette structure.
+
+Commande :
+
+Les recherches effectuées dans les en-têtes n'ont pas permis d'identifier une implémentation clairement établie du motif Commande, avec des objets représentant des commandes et une méthode d'exécution telle que `Execute()`. Les recherches de classes contenant `Command`, `Execute()` et `Undo()` n'ont pas fourni de preuve suffisante. Le motif Commande n'est donc pas confirmé dans les éléments examinés.
