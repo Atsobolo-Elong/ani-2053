@@ -1,0 +1,30 @@
+Virtuelles pures :
+NkIRenderer2D impose 30 methodes virtuelles pures, et compte a part 15 virtuelles qui ont un corps (ResetView, IsViewCustom, SetResizePolicy, GetResizePolicy, GetDesignSize, OnResize, SetClip, PopClip, ResetClip, HasClip, GetClip, Draw(NkIDrawable2D), DrawRectOutline, DrawCircleOutline, DrawTexturedRect), plus un destructeur virtuel.
+Comment j'ai compte : lecture complete de la classe NkIRenderer2D dans NKCanvas/Renderer/Core/NkIRenderer2D.h, ligne par ligne, chaque "= 0;" verifie comme etant dans cette classe.
+Verification par une seconde methode : la recherche Select-String -Pattern '= *0\s*;' trouve 31 lignes dans le fichier ; une seule appartient a une autre classe (NkIDrawable2D, sa methode Draw), donc 30 dans NkIRenderer2D. La recherche mono-ligne 'virtual.*= *0' n'en trouve que 23, parce que 7 declarations s'etalent sur plusieurs lignes et leur "= 0;" est sur la ligne de continuation (DrawLine, DrawRect, DrawCircle, DrawFilledCircle, DrawTriangle, DrawFilledTriangle, DrawVertices) : 23 + 7 = 30. Les deux methodes convergent.
+
+Dorsaux :
+Inventaire reel de NKCanvas/Backend/ (Get-ChildItem -Recurse -File -Filter *.h), six dorsaux de rendu 2D :
+- DirectX/NkDX11Renderer2D.h
+- DirectX/NkDX12Renderer2D.h
+- Metal/NkMetalRenderer2D.h
+- OpenGL/NkOpenGLRenderer2D.h
+- Software/NkSoftwareRenderer2D.h
+- Vulkan/NkVulkanRenderer2D.h
+(Les autres en-tetes du dossier sont des contextes graphiques et compute contexts, pas des dorsaux de rendu 2D.)
+Remarque : le commentaire d'en-tete de NkIRenderer2D.h annonce cinq implementations (Software, OpenGL, Vulkan, DX11, DX12) ; il est date — le dossier en contient six, Metal en plus. C'est l'inventaire des fichiers qui fait foi, pas la liste d'un commentaire.
+
+Ce que chacun écrit :
+Tous les dorsaux heritent de la meme classe-relais, NkBatchRenderer2D (verifie par Select-String 'class\s+Nk\w+Renderer2D\s*(final\s*)?:\s*public') : aucun n'herite directement de NkIRenderer2D. NkBatchRenderer2D est declare dans NKCanvas/Renderer/Batch/NkBatchRenderer2D.h et herite lui-meme de NkIRenderer2D (verifie par Select-String 'class\s+NkBatchRenderer2D' dans les en-tetes du kit) : la chaine complete est NkIRenderer2D <- NkBatchRenderer2D <- chaque dorsal.
+Comptes d'override par en-tete (Select-String '\boverride\b') :
+- NkDX11Renderer2D : classe mere NkBatchRenderer2D, 9 methodes redéfinies.
+- NkDX12Renderer2D : classe mere NkBatchRenderer2D, 9 methodes redéfinies.
+- NkMetalRenderer2D : classe mere NkBatchRenderer2D, 10 methodes redéfinies.
+- NkOpenGLRenderer2D : classe mere NkBatchRenderer2D, 10 methodes redéfinies.
+- NkSoftwareRenderer2D : classe mere NkBatchRenderer2D, 10 methodes redéfinies.
+- NkVulkanRenderer2D : classe mere NkBatchRenderer2D, 15 lignes override — attention : ce fichier porte deux versions de la classe separees par #if (la declaration apparait deux fois) ; le compte de 15 peut couvrir les deux versions, le compte de la seule version active est donc au plus 15 et a verifier dans la version compilee.
+
+Le coût :
+Un dorsal de plus ne coute pas les 30 virtuelles pures de l'interface : la chaine d'heritage le prouve. NkBatchRenderer2D (Renderer/Batch/NkBatchRenderer2D.h) implemente l'interface NkIRenderer2D une seule fois et fournit les parties communes ; chaque dorsal n'ecrit que ce qui touche a son GPU, soit 9 a 15 methodes d'apres mes comptes.
+Le cout d'ajout d'un dorsal est donc d'environ 9 a 15 methodes specialisees, plus son contexte graphique (NkXxxContext.h et NkXxxComputeContext.h accompagnent chaque dorsal, environ 15 a 34 overrides chacun), plus l'inscription dans NkRenderer2DFactory pour que le dorsal soit creable — le nom du nouveau dorsal ne doit apparaitre nulle part ailleurs, c'est ce qui reconnait la fabrique.
+L'ordre de grandeur a retenir : l'interface impose 30, la classe-relais le reduit a environ 10 par dorsal ; le prix reel se paie une fois par dorsal, pas une fois par methode de l'interface.
