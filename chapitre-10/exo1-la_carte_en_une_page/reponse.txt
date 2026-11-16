@@ -1,0 +1,8 @@
+Ce que possède chaque fichier :
+NkRefView.h possède la caméra, son centre, son zoom et les conversions entre coordonnées écran et coordonnées monde. NkRefBoard.h possède le modèle de la planche, ses éléments, leur ordre et leur sélection. NkRefFile.h possède la lecture et l'écriture du format de fichier .nkref. Enfin, main.cpp possède la glue : il relie les différents composants, gère la fenêtre, les événements et les interactions avec l'utilisateur.
+
+La part des fichiers purs :
+Les fichiers purs sont NkRefView.h, NkRefBoard.h et NkRefFile.h, car ils ne dépendent ni d'une fenêtre ni du rendu. Ils représentent 681 lignes sur 2 819, soit environ 24,16 % du code total.
+
+Les deux fichiers que je garderais :
+Je garderais NkRefView.h et NkRefBoard.h. La caméra et le modèle constituent les fondations de l'outil : ils définissent comment les coordonnées sont interprétées et comment les éléments de la planche sont organisés. La glue est beaucoup plus longue, mais elle décrit principalement la manière d'utiliser ces fondations. Je considère toutefois que la sélection dans le modèle et les tableaux parallèles constituent des dettes techniques à surveiller.
